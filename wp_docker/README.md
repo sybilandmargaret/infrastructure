@@ -20,7 +20,7 @@ docker compose up -d
 
 Services:
 
-- WordPress (Apache/PHP 8.2) on <http://localhost:8000>
+- WordPress (Apache/PHP 8.2) on <http://localhost:8001>
 - phpMyAdmin on <http://localhost:8081>
 - MySQL 8.0 exposed only inside the `wpsite` network
 
@@ -63,3 +63,13 @@ The host-level Nginx configuration is in `nginx/wordpress.conf`. Update the `ser
    ```
 
 5. Obtain or renew certificates with Certbot using the same `server_name` values from the config.
+
+## Optional: Disable HTTPS Enforcement Inside WordPress
+
+By default the compose file enforces HTTPS for `/wp-admin` and respects the `X-Forwarded-Proto` header that Nginx (or any reverse proxy) sets. To run WordPress without HTTPS enforcement—for example during local testing—override the `WORDPRESS_ENFORCE_HTTPS` environment variable in `docker-compose.yml` or via an `.env` file:
+
+```yaml
+WORDPRESS_ENFORCE_HTTPS: 'false'
+```
+
+Any of `false`, `0`, `no`, or `off` (case-insensitive) will disable the enforcement logic.

@@ -41,17 +41,22 @@ services:
       db:
         condition: service_healthy
     ports:
-      - '8000:80'
+      - '8001:80'
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: change_me_app
       WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_ENFORCE_HTTPS: 'true'
       WORDPRESS_CONFIG_EXTRA: |
-        define('FORCE_SSL_ADMIN', true);
-        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-          $_SERVER['HTTPS'] = 'on';
+        $$_enforce_https = getenv('WORDPRESS_ENFORCE_HTTPS');
+        $$_https_disabled = $$_enforce_https !== false && in_array(strtolower($$_enforce_https), ['0','false','no','off'], true);
+        if (! $$_https_disabled) {
+          define('FORCE_SSL_ADMIN', true);
+          if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            $$_SERVER['HTTPS'] = 'on';
+          }
         }
     volumes:
       - wordpress_data:/var/www/html
