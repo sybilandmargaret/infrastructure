@@ -38,4 +38,28 @@ The host-level Nginx configuration is in `nginx/wordpress.conf`. Update the `ser
 - proxies requests to the WordPress container published on port `8000`
 - forwards the correct `X-Forwarded-*` headers so WordPress can detect HTTPS
 
-Reload Nginx after copying the file into `/etc/nginx/conf.d` (or your distro equivalent) and run Certbot to obtain certificates for the chosen hostnames.
+### Setup the Nginx Config
+
+1. Copy the sample file into your Nginx config directory (usually `/etc/nginx/conf.d`). Run these commands from the repo root:
+
+   ```bash
+   sudo mkdir -p /etc/nginx/conf.d
+   sudo cp nginx/wordpress.conf /etc/nginx/conf.d/wordpress.conf
+   ```
+
+2. Edit the copied file:
+
+   - replace `server_name` with the public hostname(s)
+   - point `ssl_certificate` and `ssl_certificate_key` at the certificates issued for that host
+   - adjust the `proxy_pass http://127.0.0.1:8000;` line if the WordPress container is published on a different port
+
+3. Ensure the ACME webroot exists (`sudo mkdir -p /var/www/certbot`) before running Certbot so HTTP-01 challenges succeed.
+
+4. Test and reload Nginx once the file is in place:
+
+   ```bash
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+5. Obtain or renew certificates with Certbot using the same `server_name` values from the config.
